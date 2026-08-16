@@ -1,188 +1,302 @@
+export interface ProjectScreenshot {
+  url: string;
+  title: string;
+  caption: string;
+}
+
 export interface Project {
   id: string;
+  slug: string;
+  route: string;
   title: string;
   subtitle: string;
-  category: 'FinTech' | 'Banking' | 'AI / ML' | 'Enterprise';
+  category: 'FinTech' | 'Banking' | 'Enterprise';
   company: string;
+  role: string;
+  teamSize: string;
   period: string;
   impactMetric: string;
   userScale: string;
-  description: string;
-  architecture: string[];
+  heroImage: string;
+  screenshots: ProjectScreenshot[];
+  summary: string;
+  problem: string;
+  myRole: string;
+  technicalApproach: {
+    architecture: string[];
+    decisions: string[];
+    tradeOffs: string[];
+  };
+  impactStats: { label: string; value: string; context: string }[];
+  challengeAndSolution: {
+    challengeTitle: string;
+    challengeDetails: string;
+    solutionTitle: string;
+    solutionDetails: string;
+  };
   techStack: string[];
   keyContributions: string[];
-  challenges: string;
-  solution: string;
-  codeSnippet?: {
-    language: string;
-    filename: string;
-    code: string;
-  };
-  imageGradient: string;
 }
 
-export const PROJECTS: Project[] = [
+export const CASE_STUDIES: Project[] = [
   {
-    id: 'gcash-app',
+    id: 'gcash-super-app',
+    slug: 'gcash',
+    route: '/projects/gcash',
     title: 'GCash Super App',
-    subtitle: 'Features: GTourist, Digital Tax Refund, & Request Payment',
+    subtitle: 'GTourist, Digital Tax Refund Claims & High-Volume Payment Modules',
     category: 'FinTech',
     company: 'Perennial Systems',
-    period: '2024 - Present',
-    impactMetric: '30% Tech Debt Reduction',
-    userScale: 'Millions of Active Users',
-    description: 'Spearheaded Android feature engineering for the GCash mobile app ecosystem, architecting core modules including GTourist (international tourist services), Digital Tax Refund, and Request Payment utilizing Jetpack Compose and MVVM Clean Architecture.',
-    architecture: ['MVVM Pattern', 'Clean Architecture', 'Jetpack Compose UI', 'Hilt DI', 'Coroutines & Flow'],
-    techStack: ['Kotlin', 'Jetpack Compose', 'MVVM', 'Clean Architecture', 'StateFlow', 'Retrofit', 'Material 3'],
-    keyContributions: [
-      'Architected the full migration of legacy GCash payment modules from Java/MVP to Kotlin/MVVM.',
-      'Engineered the GTourist & Digital Tax Refund feature modules, enabling frictionless international refund claims.',
-      'Achieved 100% sprint milestone delivery through cross-domain leadership across iOS, Backend, and QA teams.'
+    role: 'Senior Android Developer & Team Lead',
+    teamSize: 'Led Android pod of 6 engineers; collaborated with iOS, Backend & QA',
+    period: 'Dec 2024 - Present',
+    impactMetric: '30% Tech Debt Reduced',
+    userScale: 'Millions of Daily Active Users',
+    heroImage: 'projects/gcash/wallet.png',
+    screenshots: [
+      {
+        url: 'projects/gcash/wallet.png',
+        title: 'GTourist Wallet & Balance Dashboard',
+        caption: 'Main GTourist dashboard showing live balance (₱ 10,000.00), 30-day tourist account status, quick Send/Pay QR shortcuts, and local onboarding guide.'
+      },
+      {
+        url: 'projects/gcash/wallet-1.png',
+        title: 'GTourist Linked International Card View',
+        caption: 'Active card management tab displaying bound international Visa card (ending in 1234) with instant unlink controls and travel payment shortcuts.'
+      },
+      {
+        url: 'projects/gcash/payment-methods.png',
+        title: 'Debit/Credit Card Payment Methods',
+        caption: 'List of linked Visa cards with default card selector for PayQR merchant transactions and option to link additional cards.'
+      },
+      {
+        url: 'projects/gcash/manage-card.png',
+        title: 'Card Settings & Default Payment Toggle',
+        caption: 'Granular card controls allowing users to set a card as the default method for PayQR merchant transactions or unlink the card.'
+      },
+      {
+        url: 'projects/gcash/my-linked-accounts.png',
+        title: 'My Linked Accounts Directory',
+        caption: 'Integrated multi-channel payment sources including GCash Mastercard, Amex Virtual Pay, PayPal, Payoneer, GCredit, and direct bank links.'
+      },
+      {
+        url: 'projects/gcash/cashier.png',
+        title: 'Pay QR Cashier Checkout',
+        caption: 'Checkout flow allowing multi-source payments across GCash balance, GCredit, GGives, or credit cards with itemized fee calculation.'
+      },
+      {
+        url: 'projects/gcash/receipt.png',
+        title: 'Payment Confirmation & Receipt',
+        caption: 'Cryptographically verified transaction receipt detailing merchant, convenience fee, QRPH invoice number, bank reference, and download/share actions.'
+      },
+      {
+        url: 'projects/gcash/inbox.jpg',
+        title: 'Transaction Inbox & Real-Time Alerts',
+        caption: 'In-app notification feed delivering real-time push confirmation of completed card payments with official reference numbers.'
+      }
     ],
-    challenges: 'Legacy GCash codebase had tightly coupled MVP components across payment modules, leading to technical debt, slow launch speeds, and testability hurdles.',
-    solution: 'Introduced a modular MVVM layer powered by Jetpack Compose UI state management and StateFlow, isolating network logic and enabling unit test coverage across all business use cases.',
-    codeSnippet: {
-      language: 'kotlin',
-      filename: 'DigitalTaxViewModel.kt',
-      code: `class DigitalTaxViewModel @Inject constructor(
-    private val getTaxRefundUseCase: GetTaxRefundUseCase,
-    private val analyticsTracker: AnalyticsTracker
-) : ViewModel() {
-
-    private val _uiState = MutableStateFlow<TaxUiState>(TaxUiState.Idle)
-    val uiState: StateFlow<TaxUiState> = _uiState.asStateFlow()
-
-    fun submitRefundClaim(claimId: String) {
-        viewModelScope.launch {
-            _uiState.value = TaxUiState.Loading
-            getTaxRefundUseCase(claimId)
-                .catch { error -> _uiState.value = TaxUiState.Error(error.message) }
-                .collect { refund ->
-                    analyticsTracker.logRefundClaimed(refund.amount)
-                    _uiState.value = TaxUiState.Success(refund)
-                }
-        }
-    }
-}`
+    summary: 'Led the Android development pod for core GCash Super App features including GTourist (international tourist onboarding), Digital Tax Refund, and Request Payment modules. Overhauled legacy Java/MVP presenter code to Kotlin MVVM and Jetpack Compose.',
+    problem: 'The legacy GCash payment codebase contained tightly coupled MVP presenters with complex callback chains, making it difficult to write reliable unit tests and causing occasional payment state synchronization bugs when network dropped during transactions.',
+    myRole: 'Served as Android Lead. Designed module boundaries, established clean MVVM architecture, built JavaScript Bridge plugins for WebView-based flows, and ensured 100% on-time sprint deliveries across all feature milestones.',
+    technicalApproach: {
+      architecture: [
+        'Modular Clean Architecture (UI -> Domain UseCases -> Repository -> Network/Storage)',
+        'Unidirectional Data Flow (UDF) powered by Jetpack Compose and StateFlow',
+        'Custom JavaScript Bridge & Native JS Plugins binding WebView modules to native Android APIs',
+        'Hilt Dependency Injection with feature-scoped components'
+      ],
+      decisions: [
+        'Migrated payment presenter layers from Java MVP to Kotlin Coroutines and immutable StateFlow models.',
+        'Extracted business validation and tax refund rules into pure Kotlin UseCases with unit tests.',
+        'Built secure native-web JavaScript bridge plugins so web-hosted partner modules could invoke native camera, biometrics, and secure storage.'
+      ],
+      tradeOffs: [
+        'Prioritized migrating high-traffic payment screens to Kotlin first, keeping stable legacy read-only modules in maintenance mode to minimize regression risks.'
+      ]
     },
-    imageGradient: 'from-emerald-900/60 via-obsidian-900 to-obsidian-950'
+    impactStats: [
+      { label: 'Technical Debt', value: '-30%', context: 'Reduced legacy MVP coupling across core payment modules' },
+      { label: 'Sprint Milestones', value: '100%', context: 'Delivered on-time releases across all international sprint cycles' },
+      { label: 'Crash-Free Rate', value: '99.95%', context: 'Maintained during high-volume international tourist releases' },
+      { label: 'Code Testability', value: '85%+', context: 'Unit test coverage across critical refund & payment UseCases' }
+    ],
+    challengeAndSolution: {
+      challengeTitle: 'Preventing Double-Submissions & Race Conditions During Network Handoffs',
+      challengeDetails: 'Users making payments in subway stations or airport terminals frequently experience brief network drops. If a user tapped the submit button multiple times during a connection switch, duplicate API requests could trigger duplicate authorization errors.',
+      solutionTitle: 'Mutex-Guarded StateFlow Pipeline with Idempotent Request Tokens',
+      solutionDetails: 'Implemented an atomic submission lock using Kotlin Coroutines Mutex to block concurrent triggers from the UI. Paired this with a unique client-generated UUID idempotency key attached to every payment payload, allowing backend gateways to safely deduplicate retries.'
+    },
+    techStack: ['Kotlin', 'Jetpack Compose', 'MVVM', 'Clean Architecture', 'StateFlow', 'Coroutines', 'Hilt', 'JavaScript Bridge', 'Retrofit 2', 'JUnit 5'],
+    keyContributions: [
+      'Engineered the GTourist module enabling international travelers to bind foreign payment methods and verify passport credentials.',
+      'Developed the Digital Tax Refund feature from scratch, allowing users to track customs refund vouchers and view real-time payout receipts.',
+      'Refactored legacy MVP payment components into Kotlin MVVM with StateFlow, reducing crash vulnerability and improving code maintainability by 30%.'
+    ]
   },
   {
-    id: 'icici-imobile',
-    title: 'ICICI iMobile Banking Ecosystem',
-    subtitle: 'Official Mobile Banking App for 50M+ Users',
+    id: 'icici-imobile-ecosystem',
+    slug: 'icici-imobile',
+    route: '/projects/icici-imobile',
+    title: 'ICICI iMobile Banking',
+    subtitle: 'Modular Banking Architecture & Reusable DFF Design System for 50M+ Users',
     category: 'Banking',
     company: 'Tata Consultancy Services',
-    period: '2023 - 2024',
-    impactMetric: '40% Faster Integration Time',
+    role: 'Information Technology Analyst (Senior Android Developer)',
+    teamSize: 'Managed pod of 3 developers; coordinated with 15+ feature pods',
+    period: 'May 2023 - Dec 2024',
+    impactMetric: '40% Faster UI Feature Integration',
     userScale: '50M+ Active Banking Customers',
-    description: 'Directed Android feature engineering for India’s premier mobile banking platform encompassing 400+ financial services, funds transfer, credit management, and real-time alerts.',
-    architecture: ['Multi-Module Architecture', 'Reusable Design Library (DFF)', 'Repository Pattern', 'Maven Artifacts'],
-    techStack: ['Kotlin', 'Android SDK', 'Maven', 'RoomDB', 'Retrofit', 'Espresso', 'GitLab Workflows'],
-    keyContributions: [
-      'Engineered and published reusable Design Framework (DFF) Maven packages utilized across multiple developer pods.',
-      'Maintained a 99.9% crash-free application rate across 50 million active users through strict PR reviews.',
-      'Managed a pod of 3 developers, accelerating UI feature delivery by 40%.'
+    heroImage: 'projects/icici/2.png',
+    screenshots: [
+      {
+        url: 'projects/icici/1.png',
+        title: 'iMobile Launch & Brand Splash Screen',
+        caption: 'Clean splash entrypoint and security validation bootstrap for ICICI\'s official mobile banking application.'
+      },
+      {
+        url: 'projects/icici/2.png',
+        title: 'Banking Dashboard & Quick Actions Hub',
+        caption: 'Unified account dashboard showing masked savings account cards, balance reveal, quick actions (UPI, Scan QR, Bank Transfer), and recent contact payees.'
+      },
+      {
+        url: 'projects/icici/3.png',
+        title: 'Upcoming Bills & Bookings Hub',
+        caption: 'Automated bill fetch reminder feed (Airtel, BESCOM utilities) and integrated travel booking schedule (VRL bus).'
+      },
+      {
+        url: 'projects/icici/4.png',
+        title: 'Cashflow Analytics & Budget Planner',
+        caption: 'Interactive monthly income vs. expense tracking charts with timeframe toggles (1 year, 6 months, 1 month, week) and UPI inflow breakdowns.'
+      },
+      {
+        url: 'projects/icici/5.png',
+        title: 'Mobile Recharge & Multi-Payment Bottom Sheet',
+        caption: 'DFF component bottom sheet for operator circle bill payments with UPI account selector, debit/credit options, and iCash redemption.'
+      },
+      {
+        url: 'projects/icici/6.png',
+        title: 'Payment Complete Confirmation Receipt',
+        caption: 'Verified payment completion screen with unique order ID, telecom operator reference ID, transaction date, and share receipt controls.'
+      },
+      {
+        url: 'projects/icici/7.png',
+        title: 'Scan & Pay UPI QR Viewfinder',
+        caption: 'Optimized camera viewfinder with hardware flashlight toggle, gallery QR upload, and interoperable BHIM UPI barcode recognition.'
+      }
     ],
-    challenges: 'Supporting 400+ disparate services in a single app while ensuring absolute design consistency and 99.9%+ crash-free uptime.',
-    solution: 'Designed and published an internal Design System Framework (DFF) as versioned Maven artifacts, allowing team members to integrate tested UI widgets with plug-and-play ease.',
-    codeSnippet: {
-      language: 'kotlin',
-      filename: 'DffButtonWidget.kt',
-      code: `@Composable
-fun DffPrimaryButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp),
-        enabled = enabled,
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = DffTheme.colors.primaryOrange,
-            contentColor = Color.White
-        )
-    ) {
-        Text(
-            text = text.uppercase(),
-            style = DffTheme.typography.buttonLabel
-        )
-    }
-}`
+    summary: 'Directed Android feature engineering for India’s premier mobile banking platform encompassing 400+ financial services. Designed, published, and maintained the internal Design Framework Foundation (DFF) Maven library used across multiple engineering pods.',
+    problem: 'With 400+ banking services built by separate feature pods, teams were frequently re-writing common UI components (account pickers, PIN pads, amount inputs) with slight inconsistencies. This caused bloated APK sizes, fragmented user experiences, and high regression overhead during OS upgrades.',
+    myRole: 'Served as Pod Lead and Core Design System Author. Managed a pod of 3 developers, published reusable DFF Maven packages, conducted code reviews, and enforced strict PR quality to maintain 99.9% crash-free production stability across 50M+ users.',
+    technicalApproach: {
+      architecture: [
+        'Multi-Module Gradle Architecture separating core UI from feature modules',
+        'Centralized Design Framework Foundation (DFF) published as versioned Maven AAR packages',
+        'Repository Pattern with encrypted RoomDB local database',
+        'Strict CI/CD verification with automated lint and Espresso tests'
+      ],
+      decisions: [
+        'Decoupled the design system (DFF) into an isolated Maven artifact, allowing feature pods to upgrade UI dependencies independently.',
+        'Created composable atomic widgets with built-in accessibility, error states, and theme tokens.',
+        'Enforced strict binary backwards compatibility to prevent breaking changes when updating core library widgets.'
+      ],
+      tradeOffs: [
+        'Maintained backwards-compatible API shims across release cycles so 15+ pods could upgrade at their own pace without blocking release schedules.'
+      ]
     },
-    imageGradient: 'from-cyber-900/60 via-obsidian-900 to-obsidian-950'
+    impactStats: [
+      { label: 'UI Dev Speedup', value: '+40%', context: 'Reduced implementation time for standardized banking screens' },
+      { label: 'Active Users', value: '50M+', context: 'Retail and enterprise banking customers across India' },
+      { label: 'Crash-Free Rate', value: '99.9%', context: 'Consistently maintained across hundreds of Android device models' },
+      { label: 'Banking Services', value: '400+', context: 'Supported across accounts, loans, deposits, and cards' }
+    ],
+    challengeAndSolution: {
+      challengeTitle: 'Maintaining Zero-Breaking-Change Releases for 15+ Distributed Pods',
+      challengeDetails: 'When updating core UI components (such as form validation styles or Android 14 predictive back support), an accidental ABI or API signature break could block sprint releases for dozens of developers.',
+      solutionTitle: 'Binary Compatibility Validation & Phased Deprecation Cycles',
+      solutionDetails: 'Introduced the Android Binary Compatibility Validator plugin in Gradle to automatically flag public API signature changes during pull requests. Used Kotlin @Deprecated annotations across two release cycles before retiring older widget signatures.'
+    },
+    techStack: ['Kotlin', 'Android SDK', 'Maven Artifacts', 'Design System (DFF)', 'Multi-Module Gradle', 'RoomDB', 'Retrofit 2', 'GitLab CI/CD', 'Espresso'],
+    keyContributions: [
+      'Engineered and published reusable Design Framework (DFF) Maven packages utilized across 15+ engineering pods, cutting UI development time by 40%.',
+      'Standardized security-critical components such as biometric authorization sheets, masked card inputs, and custom keypad dialogs.',
+      'Managed a pod of 3 developers, enforcing rigorous PR review standards and maintaining 99.9% crash-free production uptime across 50M+ active users.'
+    ]
   },
   {
-    id: 'vision-sense-tflite',
-    title: 'Vision Sense (TensorFlow Lite ML)',
-    subtitle: 'On-Device Computer Vision & Edge Intelligence',
-    category: 'AI / ML',
-    company: 'Proteus Technologies',
-    period: '2019 - 2021',
-    impactMetric: '>50% Crash Reduction',
-    userScale: 'Enterprise Operations',
-    description: 'Built a full-stack mobile AI computer vision application leveraging TensorFlow Lite models directly on Android devices for offline object detection and document scanning.',
-    architecture: ['On-Device Inference', 'TensorFlow Lite Interpreter', 'Offline-First Database', 'CameraX API'],
-    techStack: ['TensorFlow Lite', 'Kotlin', 'CameraX', 'RoomDB', 'Crashlytics', 'AutoML'],
-    keyContributions: [
-      'Integrated edge ML models capable of real-time object classification under low latency.',
-      'Designed offline-first local cache synchronization with RoomDB to enable un-interrupted field operations.',
-      'Reduced total application crash rate by >50% via Crashlytics telemetry.'
-    ],
-    challenges: 'Executing heavy machine learning models on mid-tier Android devices caused frame rate drops and high battery drain.',
-    solution: 'Optimized TFLite model quantization (INT8), coupled with CameraX image analysis pipelines on a dedicated background thread execution pool.',
-    codeSnippet: {
-      language: 'kotlin',
-      filename: 'TFLiteObjectDetector.kt',
-      code: `class TFLiteObjectDetector(
-    private val context: Context,
-    private val modelPath: String = "vision_model_quant.tflite"
-) {
-    private var interpreter: Interpreter? = null
-
-    init {
-        val model = FileUtil.loadMappedFile(context, modelPath)
-        val options = Interpreter.Options().apply {
-            setNumThreads(4)
-            setUseNNAPI(true)
-        }
-        interpreter = Interpreter(model, options)
-    }
-
-    fun detect(bitmap: Bitmap): List<DetectionResult> {
-        val tensorImage = TensorImage.fromBitmap(bitmap)
-        val outputMap = HashMap<Int, Any>()
-        // Execute fast edge inference...
-        return parseResults(outputMap)
-    }
-}`
-    },
-    imageGradient: 'from-purple-900/60 via-obsidian-900 to-obsidian-950'
-  },
-  {
-    id: 'entercard-remember',
-    title: 'EnterCard (re:member) Financial Hub',
-    subtitle: 'Credit Card Management App for European Markets',
+    id: 'entercard-remember-hub',
+    slug: 're-member',
+    route: '/projects/re-member',
+    title: 'EnterCard (re:member)',
+    subtitle: 'Credit Card Management, Swedish BankID Authentication & Swish Invoices',
     category: 'FinTech',
-    company: 'Capgemini India',
-    period: '2021 - 2023',
-    impactMetric: '20% Launch Speed Boost',
-    userScale: '500,000+ Active Cardholders',
-    description: 'Led the Android development pod responsible for credit card transactions, account overview, e-invoices, and security management across Scandinavian markets.',
-    architecture: ['MVVM Architecture', 'Java to Kotlin Migration', 'FigmaToken Integration', 'OAuth2 / Security'],
-    techStack: ['Kotlin', 'Java', 'MVVM', 'Figma Tokens', 'Biometric Auth', 'Crashlytics'],
-    keyContributions: [
-      'Drove complete codebase overhaul migrating Java & legacy MVP to Kotlin & MVVM, improving launch times by 20%.',
-      'Integrated FigmaToken automation for unified design-token sync across iOS, Web, and Android.',
-      'Resolved 40+ critical technical debt issues during a rapid-response support initiative for Ola Electric.'
+    company: 'Capgemini India Ltd',
+    role: 'Software Development Consultant',
+    teamSize: 'Led Android pod of 4 engineers working with Scandinavian product teams',
+    period: 'July 2021 - May 2023',
+    impactMetric: '20% Faster App Launch',
+    userScale: '500,000+ Active Cardholders (Sweden, Norway, Denmark)',
+    heroImage: 'projects/entercard/2.webp',
+    screenshots: [
+      {
+        url: 'projects/entercard/1.webp',
+        title: 're:member App Launch & Swedish BankID Login',
+        caption: 'Biometric and digital identity authentication gateway integrating official Swedish BankID for secure credit card access.'
+      },
+      {
+        url: 'projects/entercard/2.webp',
+        title: 'Credit Card & Loan Overview (Allt på ett ställe)',
+        caption: 'Centralized credit limit tracker displaying utilized vs. available credit (15 000 kr / 45 000 kr) with quick navigation to cards, loans, and invoices.'
+      },
+      {
+        url: 'projects/entercard/3.webp',
+        title: 'Card Services & Transactions (Kortöversikt)',
+        caption: 'Card management hub with actions to raise credit limits, add to digital wallets (Google Pay / Apple Pay), block cards, and inspect live merchant transactions (SL Stockholm, Bauhaus).'
+      },
+      {
+        url: 'projects/entercard/4.webp',
+        title: 'Invoice & Billing Overview (Fakturaöversikt with Swish)',
+        caption: 'Monthly statement breakdown with unpaid status tracking, minimum due calculations, and integrated one-tap Swish payment gateway.'
+      }
     ],
-    challenges: 'Ensuring absolute banking security and regulatory compliance while synchronizing design tokens across cross-platform teams.',
-    solution: 'Implemented FigmaToken automation combined with Android BiometricPrompt security wrappers and robust OAuth2 token refreshes.',
-    imageGradient: 'from-amber-900/60 via-obsidian-900 to-obsidian-950'
+    summary: 'Led the Android developer pod for EnterCard’s re:member credit card management platform across Sweden, Norway, and Denmark. Drove codebase migration from Java to Kotlin, built Google Maps geofencing features, developed JavaScript Bridge plugins, and automated FigmaTokens design sync.',
+    problem: 'The legacy Java/MVP codebase suffered from slow cold launch times, inconsistent UI tokens across iOS/Android/Web platforms, and high battery consumption from background location polling for merchant partner offers.',
+    myRole: 'Served as Android Pod Lead. Spearheaded Java-to-Kotlin refactoring (boosting launch speed by 20%), engineered debounced geofencing algorithms, built JavaScript Bridge solutions for hybrid WebView modules, and automated FigmaToken design sync.',
+    technicalApproach: {
+      architecture: [
+        'Modern MVVM Architecture with reactive Flow & LiveData observers',
+        'Google Maps SDK & FusedLocationProviderClient with custom geofence debouncing',
+        'JavaScript Bridge & Native JS Plugins binding WebView components to native Android modules',
+        'Android BiometricPrompt API with AES-256 hardware keystore encryption',
+        'Automated FigmaTokens JSON parser generating Android color and typography resources'
+      ],
+      decisions: [
+        'Migrated Java code to Kotlin incrementally without halting ongoing feature delivery.',
+        'Automated the design token pipeline to generate Android XML and Compose color resources directly from Figma token commits.',
+        'Implemented a location debouncer with a 15-minute cooldown per merchant category to eliminate battery drain.'
+      ],
+      tradeOffs: [
+        'Used a hybrid geofencing strategy combining passive location updates with hardware geofences to balance battery life with timely offer triggers.'
+      ]
+    },
+    impactStats: [
+      { label: 'Cold Launch Speed', value: '+20%', context: 'Achieved through Java-to-Kotlin refactoring and optimized dependency graphs' },
+      { label: 'Cardholders', value: '500K+', context: 'Active credit card users across Sweden, Norway, and Denmark' },
+      { label: 'Design Sync', value: 'Automated', context: 'Eliminated manual UI styling drift with FigmaTokens build integration' },
+      { label: 'Tech Debt Fixed', value: '40+ Issues', context: 'Resolved critical issues during rapid-response support for Ola Electric' }
+    ],
+    challengeAndSolution: {
+      challengeTitle: 'Eliminating GPS Multipath Jitter & Battery Drain in Urban Centers',
+      challengeDetails: 'In dense Scandinavian city centers (Stockholm, Oslo), GPS multipath reflections caused continuous boundary triggers for merchant partner zones, draining battery life and spamming users with duplicate alerts.',
+      solutionTitle: 'Fused Location Geofencing with Hysteresis Radius & Debounce Cooldowns',
+      solutionDetails: 'Engineered a location manager wrapper that dynamically adjusts geofence responsiveness based on user activity recognition (STILL vs WALKING). Applied a 15-minute notification cooldown per merchant category and an inner hysteresis boundary to eliminate jitter triggers.'
+    },
+    techStack: ['Kotlin', 'Java', 'MVVM', 'Google Maps SDK', 'Geofencing', 'JavaScript Bridge', 'Figma Tokens', 'Biometric Prompt', 'OAuth2', 'Crashlytics'],
+    keyContributions: [
+      'Led the architecture migration from legacy Java/MVP to Kotlin/MVVM, improving application launch speed by 20%.',
+      'Engineered the automated FigmaTokens workflow, ensuring 100% design fidelity between Figma specs and Android layouts.',
+      'Developed custom JavaScript Bridge plugins binding WebView features to native modules for hybrid Scandinavian banking flows.'
+    ]
   }
 ];
+
+export const ALL_PROJECTS = CASE_STUDIES;

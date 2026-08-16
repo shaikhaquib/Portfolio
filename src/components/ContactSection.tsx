@@ -1,30 +1,24 @@
 import React, { useState } from 'react';
 import { PERSONAL_INFO } from '../data/resumeData';
-import { Mail, Phone, MapPin, Linkedin, Github, Send, Download, Sparkles, CheckCircle2, Inbox } from 'lucide-react';
-import confetti from 'canvas-confetti';
+import { Mail, Phone, MapPin, Linkedin, Github, Send, MessageSquare, CheckCircle2, MessageCircle } from 'lucide-react';
+import { trackContactFormSubmit, trackWhatsAppClick, trackOutboundClick } from '../utils/analytics';
 
 export const ContactSection: React.FC = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+
+  const whatsappUrl = `https://wa.me/918425918611?text=${encodeURIComponent(
+    'Hi Aquib, I found your portfolio and would like to connect'
+  )}`;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
 
     setSubmitted(true);
+    trackContactFormSubmit();
 
-    // Trigger confetti celebration
-    try {
-      confetti({
-        particleCount: 90,
-        spread: 75,
-        origin: { y: 0.6 }
-      });
-    } catch (err) {
-      // fallback
-    }
-
-    // Launch mailto link so message is sent directly to Shaikhaquib119@gmail.com
+    // Trigger pre-filled mailto directly to Aquib's verified inbox
     const mailtoSubject = encodeURIComponent(`Portfolio Inquiry from ${formData.name}`);
     const mailtoBody = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
     window.open(`mailto:${PERSONAL_INFO.email}?subject=${mailtoSubject}&body=${mailtoBody}`, '_blank');
@@ -32,164 +26,175 @@ export const ContactSection: React.FC = () => {
     setTimeout(() => {
       setSubmitted(false);
       setFormData({ name: '', email: '', message: '' });
-    }, 6000);
+    }, 5000);
+  };
+
+  const handleWhatsAppClick = () => {
+    trackWhatsAppClick('contact_section');
   };
 
   return (
-    <section id="contact" className="py-24 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section id="contact" className="py-20 border-t border-charcoal-800">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-3">
+        {/* Section Header */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 text-xs font-mono text-accent-400 uppercase tracking-wider">
             <Mail className="w-3.5 h-3.5" />
-            <span>Get in Touch</span>
+            <span>Direct Inquiries & Collaboration</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-            Let's Build Extraordinary <span className="text-gradient-emerald">Mobile Products</span>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+            Get in Touch
           </h2>
-          <p className="mt-4 text-slate-300 text-base">
-            Open for Senior Mobile Lead opportunities, architecture consulting, or technical discussions.
+          <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
+            Available for Senior Mobile Lead positions, Android architecture consulting, and high-impact FinTech engineering discussions.
           </p>
         </div>
 
         {/* Contact Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Column: Direct Info Cards */}
-          <div className="lg:col-span-5 space-y-4">
+          {/* Left Column: Direct Info Cards & WhatsApp */}
+          <div className="lg:col-span-5 space-y-3">
             
-            {/* Inbox Notice Card */}
-            <div className="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-xs text-emerald-300 flex items-start gap-3">
-              <Inbox className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold text-white block mb-0.5">Direct Inbox Delivery</span>
-                <span>Messages sent via this form trigger an instant email directly to <strong className="text-white">Shaikhaquib119@gmail.com</strong>.</span>
-              </div>
-            </div>
-
             {/* Email Card */}
             <a
               href={`mailto:${PERSONAL_INFO.email}`}
-              className="glass-panel glass-panel-hover p-6 rounded-2xl border border-slate-800 flex items-center gap-4 block"
+              onClick={() => trackOutboundClick('email')}
+              className="dev-card dev-card-hover p-4 flex items-center gap-3.5 block"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                <Mail className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-lg bg-charcoal-900 border border-charcoal-700 flex items-center justify-center text-accent-400 shrink-0">
+                <Mail className="w-5 h-5" />
               </div>
-              <div>
-                <span className="text-xs text-slate-400 font-mono">Email Direct</span>
-                <h4 className="text-sm font-bold text-white mt-0.5">{PERSONAL_INFO.email}</h4>
+              <div className="min-w-0">
+                <span className="text-[11px] text-slate-400 font-mono block">Direct Email</span>
+                <span className="text-xs font-bold text-white truncate block">{PERSONAL_INFO.email}</span>
               </div>
             </a>
 
-            {/* Phone / WhatsApp Card */}
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-cyber-500/10 border border-cyber-500/20 flex items-center justify-center text-cyber-400 shrink-0">
-                <Phone className="w-6 h-6" />
+            {/* WhatsApp Direct Chat Card (Prominent & Verified) */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleWhatsAppClick}
+              className="dev-card dev-card-hover p-4 flex items-center justify-between gap-3.5 block border-accent-600/30 bg-accent-950/20"
+            >
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-10 h-10 rounded-lg bg-accent-950 border border-accent-600/40 flex items-center justify-center text-accent-400 shrink-0">
+                  <MessageCircle className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-accent-300 font-mono font-bold block">WhatsApp Click-to-Chat</span>
+                  </div>
+                  <span className="text-xs font-bold text-white truncate block">{PERSONAL_INFO.phone}</span>
+                </div>
               </div>
-              <div>
-                <span className="text-xs text-slate-400 font-mono">Phone / WhatsApp</span>
-                <h4 className="text-sm font-bold text-white mt-0.5">{PERSONAL_INFO.phone}</h4>
-              </div>
-            </div>
+              <span className="px-2 py-1 rounded bg-accent-600 hover:bg-accent-500 text-white text-[10px] font-mono font-bold shrink-0">
+                Chat Now →
+              </span>
+            </a>
 
             {/* Location Card */}
-            <div className="glass-panel p-6 rounded-2xl border border-slate-800 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 shrink-0">
-                <MapPin className="w-6 h-6" />
+            <div className="dev-card p-4 flex items-center gap-3.5">
+              <div className="w-10 h-10 rounded-lg bg-charcoal-900 border border-charcoal-700 flex items-center justify-center text-slate-400 shrink-0">
+                <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xs text-slate-400 font-mono">Current Location</span>
-                <h4 className="text-sm font-bold text-white mt-0.5">{PERSONAL_INFO.location}</h4>
+                <span className="text-[11px] text-slate-400 font-mono block">Location</span>
+                <span className="text-xs font-bold text-white">{PERSONAL_INFO.location}</span>
               </div>
             </div>
 
-            {/* Social Links Bar */}
-            <div className="pt-2 flex gap-3">
+            {/* Social Outbound Links */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
               <a
                 href={PERSONAL_INFO.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-2 transition-colors"
+                onClick={() => trackOutboundClick('linkedin')}
+                className="dev-card dev-card-hover p-3 flex items-center justify-center gap-2 text-xs font-mono font-bold text-slate-200"
               >
-                <Linkedin className="w-4 h-4 text-emerald-400" />
-                <span>LinkedIn Profile</span>
+                <Linkedin className="w-4 h-4 text-accent-400" />
+                <span>LinkedIn</span>
               </a>
 
               <a
                 href={PERSONAL_INFO.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-2 transition-colors"
+                onClick={() => trackOutboundClick('github')}
+                className="dev-card dev-card-hover p-3 flex items-center justify-center gap-2 text-xs font-mono font-bold text-slate-200"
               >
-                <Github className="w-4 h-4 text-emerald-400" />
-                <span>GitHub Repos</span>
+                <Github className="w-4 h-4 text-accent-400" />
+                <span>GitHub</span>
               </a>
             </div>
 
           </div>
 
-          {/* Right Column: Contact Form */}
-          <div className="lg:col-span-7 glass-panel p-8 rounded-3xl border border-slate-800">
+          {/* Right Column: Direct Message Form */}
+          <div className="lg:col-span-7 dev-card p-6 sm:p-8">
             {submitted ? (
-              <div className="py-12 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto">
-                  <CheckCircle2 className="w-8 h-8" />
+              <div className="py-12 text-center space-y-3">
+                <div className="w-12 h-12 rounded-full bg-accent-950 border border-accent-600/40 text-accent-400 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-6 h-6" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Opening Email Client...</h3>
-                <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                  Thank you! Your inquiry has been pre-filled for direct transmission to <strong className="text-emerald-400">Shaikhaquib119@gmail.com</strong>.
+                <h3 className="text-lg font-bold text-white">Opening Email Client...</h3>
+                <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                  Your inquiry message has been prepared for transmission to <strong className="text-white">Shaikhaquib119@gmail.com</strong>.
                 </p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-white">Send a Direct Message</h3>
-                  <span className="text-[11px] font-mono text-emerald-400">→ Shaikhaquib119@gmail.com</span>
+                <div className="flex items-center justify-between border-b border-charcoal-700 pb-3">
+                  <h3 className="text-sm font-bold text-white font-mono">Send Direct Message</h3>
+                  <span className="text-[11px] font-mono text-accent-400">→ Shaikhaquib119@gmail.com</span>
                 </div>
 
                 <div>
-                  <label className="text-xs font-mono text-slate-300 block mb-1">Your Name</label>
+                  <label className="text-[11px] font-mono text-slate-400 block mb-1">Your Name / Title</label>
                   <input
                     type="text"
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Sarah Jenkins (Engineering Recruiter)"
-                    className="w-full bg-obsidian-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    placeholder="e.g. Engineering Lead / Recruiter"
+                    className="w-full bg-charcoal-900 border border-charcoal-700 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-accent-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-mono text-slate-300 block mb-1">Your Email</label>
+                  <label className="text-[11px] font-mono text-slate-400 block mb-1">Your Email</label>
                   <input
                     type="email"
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="e.g. sarah@company.com"
-                    className="w-full bg-obsidian-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    placeholder="e.g. name@company.com"
+                    className="w-full bg-charcoal-900 border border-charcoal-700 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-accent-500"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-mono text-slate-300 block mb-1">Message</label>
+                  <label className="text-[11px] font-mono text-slate-400 block mb-1">Message / Scope</label>
                   <textarea
                     required
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Describe your role, project, or technical inquiry..."
-                    className="w-full bg-obsidian-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    placeholder="Describe your project, team opportunity, or engineering question..."
+                    className="w-full bg-charcoal-900 border border-charcoal-700 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-accent-500"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-bold text-xs transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-lg bg-accent-600 hover:bg-accent-500 text-white font-mono font-bold text-xs transition-colors flex items-center justify-center gap-2"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Send Direct Email to Aquib</span>
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Send Email to Aquib</span>
                 </button>
               </form>
             )}

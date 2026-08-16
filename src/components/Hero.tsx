@@ -1,148 +1,110 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { PERSONAL_INFO } from '../data/resumeData';
-import { Smartphone, Download, Sparkles, Shield, Cpu, Layers, ChevronRight, CheckCircle2, Terminal } from 'lucide-react';
+import { CASE_STUDIES } from '../data/projectsData';
+import { ArrowRight, Download, MessageCircle, ShieldCheck, Smartphone, Layers, Globe } from 'lucide-react';
+import { trackResumeDownload, trackWhatsAppClick } from '../utils/analytics';
+import { resolveAsset } from '../utils/assets';
 
 interface HeroProps {
-  onOpenAIChat: () => void;
+  onNavigateToProject: (route: string) => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenAIChat }) => {
-  const [activeAppTab, setActiveAppTab] = useState<'gcash' | 'icici' | 'vision'>('gcash');
+export const Hero: React.FC<HeroProps> = ({ onNavigateToProject }) => {
+  const whatsappUrl = `https://wa.me/918425918611?text=${encodeURIComponent(
+    'Hi Aquib, I found your portfolio and would like to connect'
+  )}`;
 
-  const appPreviews = {
-    gcash: {
-      name: 'GCash Super App',
-      role: 'Senior Android Lead',
-      tech: 'GTourist • Digital Tax • Compose',
-      stats: '30% Tech Debt Reduced',
-      screenTitle: 'GCash App Ecosystem',
-      status: 'Verified Refund Approved',
-      snippet: 'val gcashState = StateFlow<GCashUiState>()',
-      colorClass: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-400'
-    },
-    icici: {
-      name: 'ICICI iMobile Banking',
-      role: 'I.T. Analyst (TCS)',
-      tech: 'Design System DFF • Maven',
-      stats: '50M+ Active Users',
-      screenTitle: '400+ Banking Services',
-      status: '99.9% Crash-Free Production',
-      snippet: 'dffDesignLibrary.publishMaven()',
-      colorClass: 'from-cyber-500/20 to-blue-500/20 border-cyber-500/40 text-cyber-400'
-    },
-    vision: {
-      name: 'Vision Sense (TFLite)',
-      role: 'Sole Android Dev',
-      tech: 'TensorFlow Lite • CameraX',
-      stats: '>50% Crash Rate Cut',
-      screenTitle: 'On-Device ML Inference',
-      status: 'Real-Time Edge Detection',
-      snippet: 'tfliteInterpreter.detect(bitmap)',
-      colorClass: 'from-purple-500/20 to-pink-500/20 border-purple-500/40 text-purple-400'
-    }
+  const handleDownloadCV = () => {
+    trackResumeDownload('hero_cta');
   };
 
   return (
-    <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden">
-      {/* Background Glow Accents */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-gradient-to-tr from-emerald-600/15 via-cyber-500/10 to-transparent rounded-full blur-[130px] pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-96 h-96 bg-kotlin-purple/10 rounded-full blur-[100px] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+    <section className="pt-28 pb-16 md:pt-36 md:pb-20 border-b border-charcoal-800">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Main 2-Column Senior Developer Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
           
-          {/* Left Column: Profile Avatar + Huge Name & Headline + CTAs */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+          {/* Left Column: Profile & Summary */}
+          <div className="lg:col-span-7 space-y-6">
             
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold tracking-wide shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span>Senior Android Lead • 8+ Years Experience</span>
-            </div>
-
-            {/* Profile Avatar + Prominent Name Header */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-5 pt-1">
-              
-              {/* Profile Image Frame */}
-              <div className="relative group shrink-0">
-                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-emerald-400 via-cyber-400 to-purple-500 p-[2.5px] shadow-xl shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-300">
-                  <div className="w-full h-full rounded-[13.5px] bg-obsidian-950 overflow-hidden relative">
-                    <img
-                      src={PERSONAL_INFO.profileImageUrl}
-                      alt={PERSONAL_INFO.name}
-                      className="w-full h-full object-cover object-top"
-                    />
-                  </div>
-                </div>
-                {/* Android Badge on Avatar */}
-                <div className="absolute -bottom-1.5 -right-1.5 bg-obsidian-950 p-1.5 rounded-xl border border-emerald-500/50 shadow-md">
-                  <Smartphone className="w-4 h-4 text-emerald-400" />
-                </div>
+            {/* Developer Meta Header */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-16 h-16 rounded-xl border border-charcoal-700 bg-charcoal-900 overflow-hidden shrink-0">
+                <img
+                  src={resolveAsset(PERSONAL_INFO.profileImageUrl)}
+                  alt={PERSONAL_INFO.name}
+                  className="w-full h-full object-cover object-top"
+                />
               </div>
 
-              {/* Un-missable Prominent Display Name */}
-              <div className="text-center sm:text-left">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-none">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-mono font-bold text-accent-400">
+                    Senior Android Developer
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-500" />
+                  <span className="text-xs font-mono text-slate-400">8+ Years</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
                   {PERSONAL_INFO.name}
                 </h1>
-                <p className="text-base sm:text-lg font-bold text-gradient-emerald mt-2">
-                  {PERSONAL_INFO.title}
-                </p>
-                <div className="flex items-center justify-center sm:justify-start gap-2 mt-1 text-xs font-mono text-slate-400">
-                  <span>Mumbai, India</span>
-                  <span>•</span>
-                  <span className="text-emerald-400">Kotlin & Jetpack Compose Expert</span>
+                <div className="text-xs font-mono text-slate-400">
+                  Mumbai, India • High-Scale FinTech & Mobile Architecture
                 </div>
               </div>
-
             </div>
 
-            {/* Headline Thesis */}
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
-              Building Scalable Android Apps with <span className="text-gradient-kotlin">AI-Driven Engineering</span>
-            </h2>
+            {/* Core Summary */}
+            <div className="space-y-3">
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-100 leading-snug">
+                Building scalable Android applications serving 50M+ users across banking, payments, and enterprise domains.
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                Specializing in <span className="text-white font-medium">Kotlin</span>, <span className="text-white font-medium">Jetpack Compose</span>, <span className="text-white font-medium">Clean Architecture</span>, <span className="text-white font-medium">JavaScript Bridge</span> hybrid flows, and <span className="text-white font-medium">reusable design systems</span>. Led developer pods on <span className="text-white font-medium">ICICI iMobile (50M+ users)</span>, Southeast Asia’s <span className="text-white font-medium">GCash Super App</span>, and Scandinavian credit card hub <span className="text-white font-medium">EnterCard (re:member)</span>.
+              </p>
+            </div>
 
-            {/* Subtitle */}
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              Spearheading high-impact mobile features for <span className="text-emerald-400 font-semibold">GCash Super App</span> (GTourist, Digital Tax), <span className="text-white font-semibold">ICICI iMobile (50M+ users)</span>, and on-device <span className="text-cyber-400 font-semibold">TensorFlow Lite AI</span> with modern AI workflows (Cursor, Claude, TFLite).
-            </p>
-
-            {/* Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4">
+            {/* Direct Action CTAs */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
                 href="#projects"
-                className="px-6 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-obsidian-950 font-bold text-sm shadow-lg shadow-emerald-500/25 transition-all flex items-center gap-2 group"
+                className="px-4 py-2.5 rounded-lg bg-accent-600 hover:bg-accent-500 text-white font-mono text-xs font-bold transition-colors flex items-center gap-2"
               >
-                <span>View Featured Projects</span>
-                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                <span>View Case Studies</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </a>
 
-              <button
-                onClick={onOpenAIChat}
-                className="px-6 py-3.5 rounded-xl bg-obsidian-850 hover:bg-obsidian-800 border border-emerald-500/40 text-emerald-300 text-sm font-semibold shadow-md flex items-center gap-2 transition-all hover:border-emerald-500/70"
+              <a
+                href={resolveAsset(PERSONAL_INFO.resumePdfUrl)}
+                download="AQUIB-SHAIKH-RESUME.pdf"
+                onClick={handleDownloadCV}
+                className="px-4 py-2.5 rounded-lg bg-charcoal-850 hover:bg-charcoal-800 text-slate-200 border border-charcoal-700 font-mono text-xs font-medium transition-colors flex items-center gap-2"
               >
-                <Sparkles className="w-4 h-4 text-emerald-400" />
-                <span>Ask AI Resume Assistant</span>
-              </button>
+                <Download className="w-3.5 h-3.5 text-slate-400" />
+                <span>Download Resume (PDF)</span>
+              </a>
 
               <a
-                href={PERSONAL_INFO.resumePdfUrl}
-                download="AQUIB-SHAIKH-RESUME.pdf"
-                className="px-5 py-3.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 text-sm font-medium transition-colors flex items-center gap-2"
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackWhatsAppClick('hero')}
+                className="px-4 py-2.5 rounded-lg bg-charcoal-900 hover:bg-charcoal-850 text-accent-400 border border-charcoal-750 font-mono text-xs transition-colors flex items-center gap-2"
               >
-                <Download className="w-4 h-4 text-slate-400" />
-                <span>Download CV</span>
+                <MessageCircle className="w-3.5 h-3.5" />
+                <span>WhatsApp Chat</span>
               </a>
             </div>
 
-            {/* Key Metrics Counter Bar */}
-            <div className="pt-6 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {/* Metrics Bar */}
+            <div className="pt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-charcoal-800">
               {PERSONAL_INFO.metrics.map((metric, idx) => (
-                <div key={idx} className="bg-obsidian-900/60 p-3 rounded-xl border border-slate-800/60 text-center lg:text-left">
-                  <div className="text-2xl sm:text-3xl font-extrabold tracking-tight font-mono text-emerald-400">
+                <div key={idx} className="dev-card p-3">
+                  <div className="text-xl sm:text-2xl font-mono font-bold text-accent-400">
                     {metric.value}
                   </div>
-                  <div className="text-xs text-slate-400 font-medium mt-0.5">
+                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                     {metric.label}
                   </div>
                 </div>
@@ -151,115 +113,102 @@ export const Hero: React.FC<HeroProps> = ({ onOpenAIChat }) => {
 
           </div>
 
-          {/* Right Column: Interactive Android Device Frame Mockup */}
-          <div className="lg:col-span-5 flex flex-col items-center">
-            
-            {/* App Tab Selectors */}
-            <div className="flex items-center gap-2 p-1.5 bg-obsidian-900/90 border border-slate-800 rounded-xl mb-4 text-xs font-semibold shadow-md">
-              <button
-                onClick={() => setActiveAppTab('gcash')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeAppTab === 'gcash' ? 'bg-emerald-500 text-obsidian-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                GCash App
-              </button>
-              <button
-                onClick={() => setActiveAppTab('icici')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeAppTab === 'icici' ? 'bg-cyber-500 text-obsidian-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                ICICI (50M+)
-              </button>
-              <button
-                onClick={() => setActiveAppTab('vision')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  activeAppTab === 'vision' ? 'bg-purple-500 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                TFLite ML
-              </button>
-            </div>
-
-            {/* Android Device Mockup */}
-            <div className="relative w-[280px] sm:w-[310px] h-[560px] bg-obsidian-950 rounded-[44px] p-3 border-4 border-slate-700/80 shadow-2xl shadow-emerald-500/10 flex flex-col">
+          {/* Right Column: Platform & Engineering Leadership Overview */}
+          <div className="lg:col-span-5">
+            <div className="dev-card overflow-hidden space-y-4 p-5 sm:p-6 bg-charcoal-900/60 border-charcoal-750">
               
-              {/* Phone Speaker & Notch */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-full flex items-center justify-center z-20">
-                <div className="w-3 h-3 rounded-full bg-slate-950 border border-slate-800 mr-2" />
-                <div className="w-10 h-1.5 rounded-full bg-slate-800" />
-              </div>
-
-              {/* Inner Screen */}
-              <div className="w-full h-full bg-slate-950 rounded-[34px] overflow-hidden flex flex-col pt-8 pb-4 px-4 border border-slate-800/80 relative">
-                
-                {/* Header Status Bar */}
-                <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 border-b border-slate-800 pb-2 mb-3">
-                  <span>Android 15</span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span>5G Active</span>
+              <div className="flex items-center justify-between border-b border-charcoal-750 pb-3">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="w-4 h-4 text-accent-400" />
+                  <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
+                    Core Application Domains
                   </span>
                 </div>
+                <span className="text-[11px] font-mono text-accent-400">Production Impact</span>
+              </div>
 
-                {/* App Screen Content */}
-                <div className="flex-1 flex flex-col justify-between space-y-3">
-                  
-                  {/* Top Card */}
-                  <div className={`p-3.5 rounded-2xl bg-gradient-to-br border ${appPreviews[activeAppTab].colorClass}`}>
-                    <div className="text-[10px] uppercase font-mono tracking-wider font-semibold opacity-80">
-                      {appPreviews[activeAppTab].role}
+              {/* 3 Domain Feature Highlights */}
+              <div className="space-y-3">
+                
+                {/* GCash */}
+                <div
+                  onClick={() => onNavigateToProject('/projects/gcash')}
+                  className="p-3.5 bg-charcoal-950/80 border border-charcoal-750 hover:border-accent-600/40 rounded-xl transition-colors cursor-pointer group flex items-start justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white group-hover:text-accent-400 transition-colors">
+                        GCash Super App
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-charcoal-800 text-accent-300">
+                        FinTech
+                      </span>
                     </div>
-                    <div className="text-base font-extrabold text-white mt-1">
-                      {appPreviews[activeAppTab].screenTitle}
-                    </div>
-                    <div className="text-xs font-semibold mt-1 flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>{appPreviews[activeAppTab].status}</span>
-                    </div>
+                    <p className="text-[11px] text-slate-400 leading-snug">
+                      GTourist onboarding, Digital Tax Refund, and multi-source PayQR cashier checkout.
+                    </p>
                   </div>
-
-                  {/* App Stats Pill */}
-                  <div className="bg-obsidian-900/80 p-3 rounded-xl border border-slate-800/80">
-                    <div className="text-xs text-slate-400">Impact Metric</div>
-                    <div className="text-sm font-bold text-white font-mono text-emerald-400 mt-0.5">
-                      ⚡ {appPreviews[activeAppTab].stats}
-                    </div>
-                    <div className="text-[11px] text-slate-300 mt-1">
-                      Tech: {appPreviews[activeAppTab].tech}
-                    </div>
-                  </div>
-
-                  {/* Simulated Code Snippet Preview */}
-                  <div className="bg-obsidian-950 p-2.5 rounded-xl border border-slate-800 text-[10px] font-mono text-slate-300 space-y-1">
-                    <div className="text-slate-500 flex items-center justify-between">
-                      <span>// Kotlin Snippet</span>
-                      <Terminal className="w-3 h-3 text-emerald-400" />
-                    </div>
-                    <div className="text-emerald-400 truncate">
-                      {appPreviews[activeAppTab].snippet}
-                    </div>
-                  </div>
-
-                  {/* Interactive Button inside preview */}
-                  <button
-                    onClick={onOpenAIChat}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500 text-obsidian-950 text-xs font-bold shadow-md hover:bg-emerald-400 transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Query Architecture Specs</span>
-                  </button>
+                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-accent-400 transition-colors shrink-0 mt-1" />
                 </div>
 
-                {/* Home Indicator Bar */}
-                <div className="w-24 h-1 bg-slate-700 rounded-full mx-auto mt-3" />
-              </div>
-            </div>
+                {/* ICICI */}
+                <div
+                  onClick={() => onNavigateToProject('/projects/icici-imobile')}
+                  className="p-3.5 bg-charcoal-950/80 border border-charcoal-750 hover:border-accent-600/40 rounded-xl transition-colors cursor-pointer group flex items-start justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white group-hover:text-accent-400 transition-colors">
+                        ICICI iMobile Banking
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-charcoal-800 text-accent-300">
+                        50M+ Users
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-snug">
+                      Reusable DFF Maven design system library used across 15+ engineering pods for 400+ services.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-accent-400 transition-colors shrink-0 mt-1" />
+                </div>
 
+                {/* EnterCard */}
+                <div
+                  onClick={() => onNavigateToProject('/projects/re-member')}
+                  className="p-3.5 bg-charcoal-950/80 border border-charcoal-750 hover:border-accent-600/40 rounded-xl transition-colors cursor-pointer group flex items-start justify-between gap-3"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-white group-hover:text-accent-400 transition-colors">
+                        EnterCard (re:member)
+                      </span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-charcoal-800 text-accent-300">
+                        Nordics
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-snug">
+                      Scandinavian credit card platform with Swedish BankID login and Swish invoice payments.
+                    </p>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-accent-400 transition-colors shrink-0 mt-1" />
+                </div>
+
+              </div>
+
+              {/* Stability Badge */}
+              <div className="pt-2 border-t border-charcoal-750 flex items-center justify-between text-xs font-mono">
+                <span className="text-slate-400 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-accent-400" />
+                  <span>Production Stability</span>
+                </span>
+                <span className="text-accent-400 font-bold">99.9% Crash-Free</span>
+              </div>
+
+            </div>
           </div>
 
         </div>
+
       </div>
     </section>
   );

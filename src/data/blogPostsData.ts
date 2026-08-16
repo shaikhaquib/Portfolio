@@ -4,7 +4,7 @@ export interface BlogPost {
   excerpt: string;
   date: string;
   readTime: string;
-  category: 'Android Architecture' | 'AI Engineering' | 'Performance' | 'Kotlin';
+  category: 'Android Architecture' | 'Performance' | 'Hybrid Architecture' | 'Edge ML';
   tags: string[];
   content: string;
 }
@@ -12,72 +12,76 @@ export interface BlogPost {
 export const BLOG_POSTS: BlogPost[] = [
   {
     id: 'migrating-50m-users-compose',
-    title: 'Architecting for 50 Million Users: Migrating Banking Apps to Jetpack Compose',
-    excerpt: 'Lessons learned spearheading UI library modernization and architecture overhauls in high-traffic FinTech applications.',
-    date: 'June 18, 2026',
-    readTime: '6 min read',
+    title: 'Architecting for 50 Million Users: Multi-Module Design Systems & Clean Architecture',
+    excerpt: 'Lessons learned building reusable UI component libraries (DFF) and migrating legacy payment flows to Kotlin MVVM in high-traffic banking applications.',
+    date: 'June 2024',
+    readTime: '5 min read',
     category: 'Android Architecture',
-    tags: ['Jetpack Compose', 'MVVM', 'FinTech', 'Kotlin', 'Clean Architecture'],
+    tags: ['Jetpack Compose', 'MVVM', 'Clean Architecture', 'Design Systems', 'Maven'],
     content: `
-### Introduction
+### Overview
 
-When dealing with a mobile banking application serving over 50 million active users (such as ICICI iMobile or GCash financial services), every architectural decision carries immense weight. A single uncaught regression or rendering memory leak can impact millions of daily transactions.
+When supporting mobile banking applications serving over 50 million active users (such as ICICI iMobile and GCash), architectural decisions directly impact production stability. A single unhandled state or memory leak can affect millions of transactions.
 
-In this article, I share key insights from building reusable UI component libraries (DFF) and migrating legacy MVP payment flows to Jetpack Compose and MVVM.
+### 1. The Multi-Module Design System Approach (DFF)
 
-### 1. The Multi-Module Design System Approach
-
-Building a design framework (DFF) for enterprise apps requires decoupling visual components from business logic:
-* Token Layer: Pure color, typography, and shape tokens.
-* Component Layer: Stateless Jetpack Compose composables (DffPrimaryButton, DffInputField).
-* Packaging: Published as internal Maven packages so multiple developer pods can consume identical UI building blocks.
+Building an internal design framework for enterprise banking requires decoupling UI widgets from business logic:
+- **Token Layer**: Pure color, typography, and spacing tokens matching design specs.
+- **Component Layer**: Reusable, accessible widgets (AccountSelector, MaskedPinInput, AmountKeypad).
+- **Maven Packaging**: Published as versioned AAR packages so 15+ feature pods can consume identical UI building blocks without code duplication.
 
 ### 2. State Management with StateFlow
 
-Replacing RxJava single-events or legacy LiveData with Kotlin StateFlow ensures strict unidirectional data flow (UDF):
+Replacing legacy Presenters with Kotlin Coroutines and immutable StateFlow ensures strict unidirectional data flow (UDF), preventing concurrent state mutations during unstable network handoffs.
 
-sealed interface PaymentUiState {
-    data object Idle : PaymentUiState
-    data object Processing : PaymentUiState
-    data class Success(val transactionId: String) : PaymentUiState
-    data class Error(val message: String) : PaymentUiState
-}
-
-### 3. Measuring Impact
-- 40% Reduction in UI integration time for new sprint features.
-- 30% Reduction in technical debt across payment modules.
-- 99.9% Crash-Free Uptime maintained.
+### 3. Quantified Outcomes
+- 40% reduction in UI development time across feature pods.
+- 30% reduction in technical debt across payment modules.
+- 99.9% crash-free production rate maintained.
     `
   },
   {
-    id: 'ai-driven-android-development',
-    title: 'Supercharging Mobile Development with AI-Native Workflows: Cursor & TFLite',
-    excerpt: 'How AI tools (Cursor AI, ChatGPT, Claude) transform daily Android engineering while preserving code quality and architectural integrity.',
-    date: 'May 10, 2026',
-    readTime: '8 min read',
-    category: 'AI Engineering',
-    tags: ['AI Engineering', 'Cursor AI', 'TensorFlow Lite', 'Kotlin', 'Prompt Engineering'],
+    id: 'javascript-bridge-hybrid-apps',
+    title: 'Building a Secure JavaScript Bridge for Hybrid Android Enterprise Apps',
+    excerpt: 'How to build a clean native-to-web JS Plugin architecture allowing WebView-hosted modules to securely access device hardware, biometrics, and local storage.',
+    date: 'February 2024',
+    readTime: '6 min read',
+    category: 'Hybrid Architecture',
+    tags: ['WebView', 'JavaScript Bridge', 'Security', 'Android SDK', 'Kotlin'],
     content: `
-### The AI-Augmented Engineer
+### Why Hybrid WebView Flows Matter
 
-Artificial Intelligence is no longer just a autocomplete tool; it is a collaborative peer reviewer, test generator, and architecture accelerator.
+In large-scale FinTech applications, certain promotional features, partner storefronts, or onboarding flows are hosted as web applications to allow instant over-the-air updates without submitting new app releases to Google Play.
 
-### Core Workflow Strategies
+### The Challenge
 
-#### A. Prompt Engineering for Complex State Machines
-When building complex financial checkout flows or edge TensorFlow Lite pipelines, I write structured prompts defining:
-1. Expected Sealed Class State Machine.
-2. Threading Model (Dispatchers.IO vs Dispatchers.Default).
-3. Unit Test Mocking strategy.
+Allowing web pages to interact with native Android APIs (Camera, Biometrics, Keystore, Push Notifications) requires a secure bridge that prevents malicious script injections and memory leaks.
 
-#### B. On-Device AI with TensorFlow Lite
-In the Proteus Vision Sense app, we deployed TensorFlow Lite models directly on Android hardware:
-* INT8 Model Quantization for low latency.
-* CameraX YUV to RGB bitmap conversions in background coroutines.
-* Real-time local inference without requiring active cloud connectivity.
+### Implementation Blueprint
 
-### Conclusion
-By blending 8+ years of deep Android domain knowledge with AI assistance, we deliver enterprise-grade features in fraction of the time without compromising security or software architecture.
+1. **Strict Origin Validation**: Always verify the requesting URL hostname against an allowlist before executing privileged native operations.
+2. **Asynchronous JS Callback Protocol**: Never block the WebView UI thread. Use Kotlin Coroutines on background dispatchers and evaluate callbacks asynchronously.
+3. **Plugin Registry Pattern**: Separate native capabilities into modular JS plugins (e.g. BiometricPlugin, CameraScannerPlugin, SecureStoragePlugin) rather than one monolithic interface.
+    `
+  },
+  {
+    id: 'on-device-tflite-edge-ml',
+    title: 'On-Device Computer Vision: Running Quantized TensorFlow Lite on Android',
+    excerpt: 'Implementing real-time object classification with CameraX and INT8 quantized TensorFlow Lite models without cloud latency or active network dependencies.',
+    date: 'November 2023',
+    readTime: '7 min read',
+    category: 'Edge ML',
+    tags: ['TensorFlow Lite', 'CameraX', 'Edge ML', 'RoomDB', 'Performance'],
+    content: `
+### Offline-First Edge Intelligence
+
+In field-worker and document-scanning applications, waiting for server-side image recognition introduces unacceptable latency and fails completely in low-connectivity environments.
+
+### Optimization Strategies
+
+1. **Model Quantization (INT8)**: Converting floating-point weights to 8-bit integers reduced model size by ~75% and boosted inference speeds on mobile CPUs and neural processing units.
+2. **CameraX ImageAnalysis Pipeline**: Processing frames in background thread executors to maintain a smooth 60fps camera preview without dropping frames.
+3. **RoomDB Offline Sync**: Caching scan metadata locally and batch-uploading upon reconnection.
     `
   }
 ];
