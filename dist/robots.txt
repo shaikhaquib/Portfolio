@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow:
 
+Sitemap: https://shaikhaquib.github.io/Portfolio/sitemap.xml
 Sitemap: https://shaikhaquib.github.io/sitemap.xml
