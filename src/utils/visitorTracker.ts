@@ -6,10 +6,13 @@ export interface VisitorInfo {
   sourceType: string;
   currentPath: string;
   timestamp: string;
-  country?: string;
-  countryCode?: string;
+  country: string;
+  region?: string;
   city?: string;
   ip?: string;
+  isp?: string;
+  flag?: string;
+  timezone?: string;
   deviceType: 'Mobile' | 'Tablet' | 'Desktop';
   os: string;
   browser: string;
@@ -18,6 +21,16 @@ export interface VisitorInfo {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+}
+
+interface GeoResult {
+  country: string;
+  region?: string;
+  city?: string;
+  ip?: string;
+  isp?: string;
+  flag?: string;
+  timezone?: string;
 }
 
 const parseDeviceAndOS = (): { deviceType: 'Mobile' | 'Tablet' | 'Desktop'; os: string; browser: string } => {
@@ -30,21 +43,21 @@ const parseDeviceAndOS = (): { deviceType: 'Mobile' | 'Tablet' | 'Desktop'; os: 
   let os = 'Unknown OS';
   let browser = 'Unknown Browser';
 
-  // Device
+  // Device detection
   if (/iPad|Tablet|Android(?!.*Mobile)/i.test(ua)) {
     deviceType = 'Tablet';
   } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated/i.test(ua)) {
     deviceType = 'Mobile';
   }
 
-  // OS
+  // OS detection
   if (/Windows/i.test(ua)) os = 'Windows';
   else if (/Macintosh|Mac OS X/i.test(ua)) os = 'macOS';
   else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
   else if (/Android/i.test(ua)) os = 'Android';
   else if (/Linux/i.test(ua)) os = 'Linux';
 
-  // Browser
+  // Browser detection
   if (/Chrome/i.test(ua) && !/Edge|Edg|OPR/i.test(ua)) browser = 'Chrome';
   else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
   else if (/Firefox/i.test(ua)) browser = 'Firefox';
@@ -63,10 +76,69 @@ const getReferralSource = (referrer: string): string => {
   return referrer;
 };
 
+// Resilient Multi-Tier IP Geolocation Resolver
+const fetchAccurateGeoLocation = async (): Promise<GeoResult> => {
+  // 1. Primary: ipwho.is (High-accuracy City, Region, Country, Flag, ISP, Timezone)
+  try {
+    const res = await fetch('https://ipwho.is/', { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success !== false && data.country) {
+        return {
+          country: data.country || 'Global',
+          region: data.region || '',
+          city: data.city || '',
+          ip: data.ip || '',
+          isp: data.connection?.isp || data.connection?.org || '',
+          flag: data.flag?.emoji || '',
+          timezone: data.timezone?.id || '',
+        };
+      }
+    }
+  } catch (e) {}
+
+  // 2. Fallback 1: ipapi.co
+  try {
+    const res = await fetch('https://ipapi.co/json/', { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.country_name) {
+        return {
+          country: data.country_name || 'Global',
+          region: data.region || '',
+          city: data.city || '',
+          ip: data.ip || '',
+          isp: data.org || '',
+          timezone: data.timezone || '',
+        };
+      }
+    }
+  } catch (e) {}
+
+  // 3. Fallback 2: freeipapi.com
+  try {
+    const res = await fetch('https://freeipapi.com/api/json', { cache: 'no-cache' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.countryName) {
+        return {
+          country: data.countryName || 'Global',
+          region: data.regionName || '',
+          city: data.cityName || '',
+          ip: data.ipAddress || '',
+          timezone: data.timeZone || '',
+        };
+      }
+    }
+  } catch (e) {}
+
+  return { country: 'Global' };
+};
+
 export const initVisitorTracker = async () => {
   if (!TRACKER_CONFIG.enabled || typeof window === 'undefined') return;
 
-  // Session debounce check
+  // Session debounce check (prevents duplicate spam on the same visit)
   if (TRACKER_CONFIG.debouncePerSession) {
     const hasTracked = sessionStorage.getItem('portfolio_visitor_tracked');
     if (hasTracked) return;
@@ -76,9 +148,7 @@ export const initVisitorTracker = async () => {
   // Zero-config background telemetry ping (hits.sh)
   try {
     fetch('https://hits.sh/shaikhaquib.github.io/Portfolio.svg', { mode: 'no-cors' }).catch(() => {});
-  } catch (e) {
-    // Ignore ping errors
-  }
+  } catch (e) {}
 
   const { deviceType, os, browser } = parseDeviceAndOS();
   const rawReferrer = document.referrer;
@@ -89,31 +159,25 @@ export const initVisitorTracker = async () => {
   const utmMedium = urlParams.get('utm_medium') || undefined;
   const utmCampaign = urlParams.get('utm_campaign') || undefined;
 
-  let geoData: { country?: string; countryCode?: string; city?: string; ip?: string } = {};
-
-  // Fetch non-blocking geolocation
-  try {
-    const res = await fetch('https://api.country.is/', { cache: 'no-cache' });
-    if (res.ok) {
-      const data = await res.json();
-      geoData = {
-        country: data.country,
-        countryCode: data.country,
-        ip: data.ip,
-      };
-    }
-  } catch (err) {
-    // Geo fetch optional fallback
-  }
+  // Fetch accurate location from IP
+  const geo = await fetchAccurateGeoLocation();
 
   const visitor: VisitorInfo = {
     referrer: rawReferrer || 'Direct',
     sourceType: referralSource,
     currentPath: window.location.pathname + window.location.search,
-    timestamp: new Date().toLocaleString(),
-    country: geoData.country || 'Global',
-    city: geoData.city || '',
-    ip: geoData.ip || '',
+    timestamp: new Date().toLocaleString('en-US', {
+      timeZone: geo.timezone || undefined,
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }),
+    country: geo.country,
+    region: geo.region,
+    city: geo.city,
+    ip: geo.ip,
+    isp: geo.isp,
+    flag: geo.flag,
+    timezone: geo.timezone,
     deviceType,
     os,
     browser,
@@ -130,8 +194,12 @@ export const initVisitorTracker = async () => {
     sourceType: visitor.sourceType,
     referrer: visitor.referrer,
     currentPath: visitor.currentPath,
-    country: visitor.country || 'Global',
+    country: visitor.country,
+    region: visitor.region,
     city: visitor.city,
+    ip: visitor.ip,
+    isp: visitor.isp,
+    flag: visitor.flag,
     deviceType: visitor.deviceType,
     os: visitor.os,
     browser: visitor.browser,
@@ -143,16 +211,24 @@ export const initVisitorTracker = async () => {
 };
 
 const sendVisitorAlert = async (visitor: VisitorInfo) => {
-  // 1. Telegram Notification
+  // Format location string: "Panvel, Maharashtra, India 🇮🇳"
+  const locationParts = [visitor.city, visitor.region, visitor.country]
+    .filter(Boolean)
+    .join(', ');
+  const locationFormatted = `${locationParts} ${visitor.flag || ''}`.trim() || 'Global';
+
+  // 1. Telegram Notification (Instant Push to Phone)
   if (TRACKER_CONFIG.telegram.enabled && TRACKER_CONFIG.telegram.botToken && TRACKER_CONFIG.telegram.chatId) {
     try {
-      const message = `🔔 *New Portfolio Visitor Alert!*\n\n` +
+      const message =
+        `🔔 *New Portfolio Visitor Alert!*\n\n` +
+        `📍 *Location:* ${locationFormatted}\n` +
         `🌐 *Source:* ${visitor.sourceType}\n` +
-        `📍 *Location:* ${visitor.country || 'Unknown'}\n` +
-        `📱 *Device:* ${visitor.deviceType} (${visitor.os} • ${visitor.browser})\n` +
-        `📄 *Landing Page:* ${visitor.currentPath}\n` +
-        `⏰ *Time:* ${visitor.timestamp}\n` +
-        (visitor.utmSource ? `🏷️ *UTM Campaign:* ${visitor.utmSource} / ${visitor.utmMedium || ''}\n` : '') +
+        (visitor.ip ? `🖥️ *IP & Network:* \`${visitor.ip}\` ${visitor.isp ? `(${visitor.isp})` : ''}\n` : '') +
+        `📱 *Device:* ${visitor.deviceType} (${visitor.os} • ${visitor.browser} • ${visitor.screenSize})\n` +
+        `📄 *Landing Page:* \`${visitor.currentPath}\`\n` +
+        `⏰ *Time:* ${visitor.timestamp} ${visitor.timezone ? `(${visitor.timezone})` : ''}\n` +
+        (visitor.utmSource ? `🏷️ *Campaign:* ${visitor.utmSource} / ${visitor.utmMedium || ''}\n` : '') +
         `🔗 *Referrer:* \`${visitor.referrer}\``;
 
       await fetch(`https://api.telegram.org/bot${TRACKER_CONFIG.telegram.botToken}/sendMessage`, {
@@ -176,7 +252,7 @@ const sendVisitorAlert = async (visitor: VisitorInfo) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          subject: `Portfolio Visit from ${visitor.sourceType} (${visitor.country || 'Global'})`,
+          subject: `Portfolio Visit from ${locationFormatted} (${visitor.sourceType})`,
           ...visitor,
         }),
       });
@@ -192,7 +268,7 @@ const sendVisitorAlert = async (visitor: VisitorInfo) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          content: `🔔 **New Portfolio Visitor** from **${visitor.sourceType}** (${visitor.country || 'Global'}) on ${visitor.deviceType} (${visitor.os}). Path: ${visitor.currentPath}`,
+          content: `🔔 **New Portfolio Visitor** from **${locationFormatted}** via **${visitor.sourceType}** on ${visitor.deviceType} (${visitor.os}). Path: ${visitor.currentPath}`,
         }),
       });
     } catch (err) {
@@ -202,6 +278,11 @@ const sendVisitorAlert = async (visitor: VisitorInfo) => {
 
   // 4. Developer Console in local development
   if (typeof import.meta !== 'undefined' && (import.meta as any).env?.DEV) {
-    console.log('%c[Visitor Tracker]%c New Session Captured:', 'color: #10B981; font-weight: bold;', 'color: #94A3B8;', visitor);
+    console.log('%c[Visitor Tracker]%c Captured Live Session:', 'color: #10B981; font-weight: bold;', 'color: #94A3B8;', {
+      location: locationFormatted,
+      ip: visitor.ip,
+      isp: visitor.isp,
+      visitor,
+    });
   }
 };

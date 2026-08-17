@@ -57,7 +57,7 @@ export const AnalyticsReportModal: React.FC<AnalyticsReportModalProps> = ({ isOp
                   Real Traffic Only
                 </span>
               </div>
-              <p className="text-xs text-slate-400">Live, real-time visitor sessions and metrics</p>
+              <p className="text-xs text-slate-400">Live IP geolocation & visitor sessions</p>
             </div>
           </div>
 
@@ -142,7 +142,7 @@ export const AnalyticsReportModal: React.FC<AnalyticsReportModalProps> = ({ isOp
               <Activity className="w-8 h-8 text-accent-400 mx-auto animate-pulse" />
               <h4 className="text-sm font-bold text-white font-mono">Listening for Incoming Traffic</h4>
               <p className="text-xs text-slate-400 max-w-sm mx-auto">
-                No real sessions recorded yet on this browser. As recruiters and visitors open your site from LinkedIn or GitHub, real-time sessions and metrics will populate here.
+                No real sessions recorded yet on this browser. As recruiters and visitors open your site from LinkedIn or GitHub, real-time sessions with precise City & Country will populate here.
               </p>
             </div>
           ) : (
@@ -226,26 +226,34 @@ export const AnalyticsReportModal: React.FC<AnalyticsReportModalProps> = ({ isOp
                   <span>Real-Time Visitor Log</span>
                 </h4>
                 <div className="border border-charcoal-750 rounded-xl overflow-hidden divide-y divide-charcoal-800">
-                  {report.recentVisits.map((visit) => (
-                    <div key={visit.id} className="p-3 bg-charcoal-900/60 hover:bg-charcoal-900 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-white font-mono">{visit.sourceType}</span>
-                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-charcoal-800 text-slate-300">
-                            {visit.country} {visit.city ? `(${visit.city})` : ''}
+                  {report.recentVisits.map((visit) => {
+                    const locDetail = [visit.city, visit.region, visit.country].filter(Boolean).join(', ');
+                    return (
+                      <div key={visit.id} className="p-3 bg-charcoal-900/60 hover:bg-charcoal-900 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-white font-mono">{visit.sourceType}</span>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-charcoal-800 text-slate-300">
+                              {locDetail} {visit.flag || ''}
+                            </span>
+                            {visit.isp && (
+                              <span className="text-[10px] text-slate-400 font-mono hidden md:inline">
+                                • {visit.isp}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[11px] text-slate-400 block truncate max-w-md">
+                            Landing Page: <strong className="text-slate-300">{visit.currentPath}</strong>
                           </span>
                         </div>
-                        <span className="text-[11px] text-slate-400 block truncate max-w-md">
-                          Landing Page: <strong className="text-slate-300">{visit.currentPath}</strong>
-                        </span>
-                      </div>
 
-                      <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400 shrink-0">
-                        <span>{visit.deviceType} • {visit.os}</span>
-                        <span>{visit.formattedTime.split(',')[1] || visit.formattedTime}</span>
+                        <div className="flex items-center gap-3 text-[11px] font-mono text-slate-400 shrink-0">
+                          <span>{visit.deviceType} • {visit.os}</span>
+                          <span>{visit.formattedTime.split(',')[1] || visit.formattedTime}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </>

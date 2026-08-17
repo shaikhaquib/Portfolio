@@ -6,7 +6,11 @@ export interface StoredVisit {
   referrer: string;
   currentPath: string;
   country: string;
+  region?: string;
   city?: string;
+  ip?: string;
+  isp?: string;
+  flag?: string;
   deviceType: 'Mobile' | 'Tablet' | 'Desktop';
   os: string;
   browser: string;
@@ -109,8 +113,8 @@ export const getAnalyticsReport = (): AnalyticsReport => {
 
     history.forEach((v) => {
       sourceMap[v.sourceType] = (sourceMap[v.sourceType] || 0) + 1;
-      const country = v.country || 'Global';
-      locationMap[country] = (locationMap[country] || 0) + 1;
+      const countryLabel = v.country ? `${v.country} ${v.flag || ''}`.trim() : 'Global';
+      locationMap[countryLabel] = (locationMap[countryLabel] || 0) + 1;
       const page = v.currentPath.split('?')[0] || '/';
       pageMap[page] = (pageMap[page] || 0) + 1;
 
