@@ -68,7 +68,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateToProject }) => {
                 rel="noopener noreferrer"
                 onClick={() => trackOutboundClick('github')}
                 className="p-2 rounded-lg bg-charcoal-900 hover:bg-charcoal-850 text-slate-300 hover:text-white border border-charcoal-750 transition-colors"
-                title="Portfolio"
+                title="GitHub"
               >
                 <Github className="w-4 h-4" />
               </a>

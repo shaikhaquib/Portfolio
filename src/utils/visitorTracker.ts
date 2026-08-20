@@ -23,7 +23,7 @@ export interface VisitorInfo {
   utmCampaign?: string;
 }
 
-interface GeoResult {
+export interface GeoResult {
   country: string;
   region?: string;
   city?: string;
@@ -77,7 +77,7 @@ const getReferralSource = (referrer: string): string => {
 };
 
 // Resilient Multi-Tier IP Geolocation Resolver
-const fetchAccurateGeoLocation = async (): Promise<GeoResult> => {
+export const fetchAccurateGeoLocation = async (): Promise<GeoResult> => {
   // 1. Primary: ipwho.is (High-accuracy City, Region, Country, Flag, ISP, Timezone)
   try {
     const res = await fetch('https://ipwho.is/', { cache: 'no-cache' });
@@ -135,8 +135,108 @@ const fetchAccurateGeoLocation = async (): Promise<GeoResult> => {
   return { country: 'Global' };
 };
 
+export const isOwnerMode = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('owner') === 'true' || urlParams.get('admin') === 'true' || window.location.hash === '#owner') {
+      localStorage.setItem(TRACKER_CONFIG.ownerStorageKey, 'true');
+      return true;
+    }
+    if (urlParams.get('owner') === 'false' || urlParams.get('admin') === 'false' || window.location.hash === '#unowner') {
+      localStorage.removeItem(TRACKER_CONFIG.ownerStorageKey);
+      return false;
+    }
+    return localStorage.getItem(TRACKER_CONFIG.ownerStorageKey) === 'true';
+  } catch (e) {
+    return false;
+  }
+};
+
+export const setOwnerMode = (enabled: boolean): void => {
+  if (typeof window === 'undefined') return;
+  try {
+    if (enabled) {
+      localStorage.setItem(TRACKER_CONFIG.ownerStorageKey, 'true');
+    } else {
+      localStorage.removeItem(TRACKER_CONFIG.ownerStorageKey);
+    }
+  } catch (e) {}
+};
+
+export const getStoredIgnoredIPs = (): string[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem('portfolio_ignored_ips');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+};
+
+export const getAllIgnoredIPs = (): string[] => {
+  const stored = getStoredIgnoredIPs();
+  const configIPs = TRACKER_CONFIG.ignoredIPs || [];
+  return Array.from(new Set([...configIPs, ...stored].filter(Boolean)));
+};
+
+export const addIgnoredIP = (ip: string): void => {
+  if (typeof window === 'undefined' || !ip) return;
+  try {
+    const trimmed = ip.trim();
+    if (!trimmed) return;
+    const current = getStoredIgnoredIPs();
+    if (!current.includes(trimmed)) {
+      const updated = [...current, trimmed];
+      localStorage.setItem('portfolio_ignored_ips', JSON.stringify(updated));
+    }
+  } catch (e) {}
+};
+
+export const removeIgnoredIP = (ip: string): void => {
+  if (typeof window === 'undefined' || !ip) return;
+  try {
+    const trimmed = ip.trim();
+    const current = getStoredIgnoredIPs();
+    const updated = current.filter((item) => item !== trimmed);
+    localStorage.setItem('portfolio_ignored_ips', JSON.stringify(updated));
+  } catch (e) {}
+};
+
+export const isIPIgnored = (ip: string): boolean => {
+  if (!ip) return false;
+  return getAllIgnoredIPs().includes(ip.trim());
+};
+
+export const isDevEnvironment = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host.endsWith('.local');
+};
+
+// Expose helpers on window object for easy console control
+if (typeof window !== 'undefined') {
+  (window as any).setOwnerMode = setOwnerMode;
+  (window as any).isOwnerMode = isOwnerMode;
+  (window as any).addIgnoredIP = addIgnoredIP;
+  (window as any).removeIgnoredIP = removeIgnoredIP;
+  (window as any).getAllIgnoredIPs = getAllIgnoredIPs;
+}
+
 export const initVisitorTracker = async () => {
   if (!TRACKER_CONFIG.enabled || typeof window === 'undefined') return;
+
+  // 1. Bypass if running on localhost or dev environment
+  if (TRACKER_CONFIG.ignoreLocalhost && isDevEnvironment()) {
+    return;
+  }
+
+  // 2. Bypass if this browser/device is flagged as the Portfolio Owner
+  if (isOwnerMode()) {
+    return;
+  }
 
   // Session debounce check (prevents duplicate spam on the same visit)
   if (TRACKER_CONFIG.debouncePerSession) {
@@ -161,6 +261,11 @@ export const initVisitorTracker = async () => {
 
   // Fetch accurate location from IP
   const geo = await fetchAccurateGeoLocation();
+
+  // 3. Bypass if visitor IP is in the ignored list (Config or Local Storage)
+  if (geo.ip && isIPIgnored(geo.ip)) {
+    return;
+  }
 
   const visitor: VisitorInfo = {
     referrer: rawReferrer || 'Direct',

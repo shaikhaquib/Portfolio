@@ -1,6 +1,6 @@
 import React from 'react';
 import { PERSONAL_INFO, WORK_EXPERIENCES, EDUCATIONS, CERTIFICATIONS, SKILL_GROUPS, INDEPENDENT_PROJECTS } from '../data/resumeData';
-import { FileText, Download, Printer, Mail, Phone, MapPin, Linkedin, Globe } from 'lucide-react';
+import { FileText, Download, Printer, Mail, Phone, MapPin, Linkedin, Github, Globe } from 'lucide-react';
 import { trackResumeDownload } from '../utils/analytics';
 import { resolveAsset } from '../utils/assets';
 
@@ -83,6 +83,9 @@ export const InteractiveResume: React.FC = () => {
                   <Linkedin className="w-3 h-3" /> LinkedIn
                 </a>
                 <a href={PERSONAL_INFO.github} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
+                  <Github className="w-3 h-3" /> GitHub
+                </a>
+                <a href={PERSONAL_INFO.portfolio} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center gap-1">
                   <Globe className="w-3 h-3" /> Portfolio
                 </a>
               </div>
