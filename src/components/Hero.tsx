@@ -3,7 +3,7 @@ import { PERSONAL_INFO } from '../data/resumeData';
 import { CASE_STUDIES } from '../data/projectsData';
 import { ArrowRight, Download, MessageCircle, ShieldCheck, Smartphone, Layers, Globe } from 'lucide-react';
 import { trackResumeDownload, trackWhatsAppClick } from '../utils/analytics';
-import { resolveAsset } from '../utils/assets';
+import { resolveAsset, handleAssetError } from '../utils/assets';
 
 interface HeroProps {
   onNavigateToProject: (route: string) => void;
@@ -34,6 +34,7 @@ export const Hero: React.FC<HeroProps> = ({ onNavigateToProject }) => {
                 <img
                   src={resolveAsset(PERSONAL_INFO.profileImageUrl)}
                   alt={PERSONAL_INFO.name}
+                  onError={(e) => handleAssetError(e, PERSONAL_INFO.profileImageUrl)}
                   className="w-full h-full object-cover object-top"
                 />
               </div>

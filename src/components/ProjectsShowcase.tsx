@@ -2,7 +2,7 @@ import React from 'react';
 import { CASE_STUDIES } from '../data/projectsData';
 import { FolderGit2, ArrowRight } from 'lucide-react';
 import { trackEvent } from '../utils/analytics';
-import { resolveAsset } from '../utils/assets';
+import { resolveAsset, handleAssetError } from '../utils/assets';
 
 interface ProjectsShowcaseProps {
   onSelectProject: (route: string) => void;
@@ -69,6 +69,7 @@ export const ProjectsShowcase: React.FC<ProjectsShowcaseProps> = ({ onSelectProj
                     <img
                       src={resolveAsset(screen.url)}
                       alt={screen.title}
+                      onError={(e) => handleAssetError(e, screen.url)}
                       className="w-full h-full object-contain"
                       loading="lazy"
                     />
@@ -144,6 +145,7 @@ export const ProjectsShowcase: React.FC<ProjectsShowcaseProps> = ({ onSelectProj
                     <img
                       src={resolveAsset(screen.url)}
                       alt={screen.title}
+                      onError={(e) => handleAssetError(e, screen.url)}
                       className="w-full h-full object-contain"
                       loading="lazy"
                     />
@@ -213,6 +215,7 @@ export const ProjectsShowcase: React.FC<ProjectsShowcaseProps> = ({ onSelectProj
                     <img
                       src={resolveAsset(screen.url)}
                       alt={screen.title}
+                      onError={(e) => handleAssetError(e, screen.url)}
                       className="w-full h-full object-contain"
                       loading="lazy"
                     />

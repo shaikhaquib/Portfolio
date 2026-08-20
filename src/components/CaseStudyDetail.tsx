@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Project, ProjectScreenshot } from '../data/projectsData';
 import { ArrowLeft, CheckCircle2, ShieldAlert, Terminal, Building2, ChevronRight, X, ZoomIn } from 'lucide-react';
 import { trackPageView, trackEvent } from '../utils/analytics';
-import { resolveAsset } from '../utils/assets';
+import { resolveAsset, handleAssetError } from '../utils/assets';
 
 interface CaseStudyDetailProps {
   project: Project;
@@ -136,6 +136,7 @@ export const CaseStudyDetail: React.FC<CaseStudyDetailProps> = ({
                   <img
                     src={resolveAsset(screen.url)}
                     alt={screen.title}
+                    onError={(e) => handleAssetError(e, screen.url)}
                     className="w-full h-full object-contain object-center rounded group-hover:scale-105 transition-transform duration-200"
                     loading="lazy"
                   />
@@ -350,6 +351,7 @@ export const CaseStudyDetail: React.FC<CaseStudyDetailProps> = ({
               <img
                 src={resolveAsset(activeScreenshot.url)}
                 alt={activeScreenshot.title}
+                onError={(e) => handleAssetError(e, activeScreenshot.url)}
                 className="max-h-[70vh] object-contain rounded"
               />
             </div>
