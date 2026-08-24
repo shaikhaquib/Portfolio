@@ -24,7 +24,8 @@ dist-ssr
 *.sw?
 
 # Raw user upload folders (sanitized assets are in public/projects)
-Gcash
-ICICIResources
-enterCard
+/Gcash
+/ICICIResources
+/enterCard
 Aquib-Shaikh-Android-Resume.pdf.pdf
+
